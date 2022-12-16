@@ -23,5 +23,6 @@ void mainPage(int, int, int);
 
 void toggleBacklight();
 void alarmList();
+void settingsPage();
 
 #endif //BUDZIKV2_PAGES_H

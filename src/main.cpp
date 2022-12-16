@@ -113,6 +113,10 @@ alarmGuard();
             alarmList();
             lcd.clear();
             break;
+        case SETTINGS:
+            settingsPage();
+            lcd.clear();
+            break;
         default:
             pageId = MAIN;
             break;

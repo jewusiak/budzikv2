@@ -74,17 +74,17 @@ void scrollPos(int pos) {
     scrPos += pos;
     if (scrPos <= 0)
         scrPos = 0;
-    else if (scrPos >= no_lines-1)
+    else if (scrPos >= no_lines - 1)
         scrPos--;
 
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print(" " + lines[scrPos]);
-        lcd.setCursor(0, 1);
-        if (no_lines == 1)
-            lcd.print("BRAK ALARMOW");
-        else
-            lcd.print("*" + lines[scrPos + 1]);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(" " + lines[scrPos]);
+    lcd.setCursor(0, 1);
+    if (no_lines == 1)
+        lcd.print("BRAK ALARMOW");
+    else
+        lcd.print("*" + lines[scrPos + 1]);
 
 }
 
@@ -119,7 +119,7 @@ void editAlarm(alarm *a) {
         if ((pKey = kp.getKey())) {
             if (pKey >= '0' && pKey <= '9') {
                 if (dl_ng < 4) {
-                    lcd.setCursor(12+dl_ng, 1);
+                    lcd.setCursor(12 + dl_ng, 1);
                     lcd.print(pKey);
                     nowagodz[dl_ng++] = pKey;
                 }
@@ -130,8 +130,8 @@ void editAlarm(alarm *a) {
                             a->hours = ((String) nowagodz).substring(0, 2).toInt();
                             a->minutes = ((String) nowagodz).substring(2, 4).toInt();
                         }
-                            a->status = ns;
-                            mem.update(*a);
+                        a->status = ns;
+                        mem.update(*a);
 
                         back = true;
                         break;
@@ -153,7 +153,7 @@ void editAlarm(alarm *a) {
 }
 
 void enterOnAlarmList(alarm a) {
-    if(mem.nol==0)
+    if (mem.nol == 0)
         return;
     bool back = false;
     lcd.clear();
@@ -194,8 +194,8 @@ void enterOnAlarmList(alarm a) {
 
 void addNewAlarm() {
     bool back = false;
-    alarm na=alarm(-1,0,0,ON);
-    
+    alarm na = alarm(-1, 0, 0, ON);
+
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Nowy alarm:   ");
@@ -209,7 +209,7 @@ void addNewAlarm() {
         if ((pKey = kp.getKey())) {
             if (pKey >= '0' && pKey <= '9') {
                 if (dl_ng < 4) {
-                    lcd.setCursor(12+dl_ng,1);
+                    lcd.setCursor(12 + dl_ng, 1);
                     lcd.print(pKey);
                     nowagodz[dl_ng++] = pKey;
                 }
@@ -239,6 +239,64 @@ void addNewAlarm() {
     }
 }
 
+void settingsPage() {
+    lcd.setCursor(0, 0);
+    lcd.print("Ustaw godzine:");
+    lcd.setCursor(0, 1);
+    lcd.print("__:__ #-ok *-del");
+    lcd.setCursor(0, 1);
+    int length = 0;
+    int time[4] = {0};
+    while (true) {
+        char pKey;
+        if ((pKey = kp.getKey())) {
+            switch (pKey) {
+                case '*':
+                    pageId = MAIN;
+                    break;
+                case '#':
+                    if (length < 4) {
+                        lcd.clear();
+                        lcd.setCursor(0, 0);
+                        lcd.print("Nie podano calej");
+                        lcd.setCursor(0, 1);
+                        lcd.print("godziny");
+                        delay(3000);
+                        pageId = MAIN;
+                        break;
+                    }
+                    if (time[2] > 5 || time[3] > 9 || time[0] > 2 || (time[0] == 2 && time[1] > 3)) {
+                        lcd.clear();
+                        lcd.setCursor(0, 0);
+                        lcd.print("Godz. zly format");
+                        lcd.setCursor(0, 1);
+                        lcd.print("OK:00:00 - 23:59");
+                        delay(3000);
+                        pageId = MAIN;
+                        break;
+                    }
+
+                    myRTC.setDS1302Time(0,time[2]*10+time[3],time[0]*10+time[1], myRTC.dayofweek, myRTC.dayofmonth, myRTC.month, myRTC.year);
+
+
+                    
+
+
+                    pageId = MAIN;
+                    break;
+                default:
+                    if (pKey < 48 || pKey > 57 || length >= 4) break;
+                    lcd.setCursor(length / 2 + length, 1);
+                    lcd.print(pKey);
+                    time[length++] = pKey - 48;
+                    break;
+            }
+        }
+        if (pageId != SETTINGS)
+            break;
+
+    }
+}
 
 void alarmList() {
     reloadList();
